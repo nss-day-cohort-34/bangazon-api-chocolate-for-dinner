@@ -32,28 +32,85 @@ namespace BangazonAPI.Controllers
 
         // GET api/customers
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string include, string q)
         {
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "Write your SQL statement here to get all customers";
+                    if (include == "products")
+                    {
+                        cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
+                                                                       p.Id AS ProductId, p.Title, p.Price, p.ProductTypeId, p.Description, p.Quantity,
+                                                                       pt.Name AS ProductType
+                                                            FROM Customer c
+                                                                       LEFT JOIN Product p ON c.Id = p.CustomerId
+                                                                       INNER JOIN ProductType pt ON pt.Id = p.ProductTypeId";
+                    }
+
+                    else if (include == "payments")
+                    {
+                        cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
+                                                                        pyt.Id AS PaymentTypeId, pyt.AccountNumber, pyt.Name AS PaymentTypeName
+                                                        FROM Customer c
+                                                                        LEFT JOIN PaymentType ON c.Id = pyt.CustomerId";
+                    }
+
+                    else if (q != null)
+                    {
+                        cmd.CommandText = @"SELECT Id AS CustomerId, FirstName, LastName, CreationDate, LastActiveDate
+                                                                FROM Customer
+                                                                WHERE FirstName LIKE @q";
+                        cmd.Parameters.Add(new SqlParameter("@q", $"%{q}%"));
+                    }
+
+                    else
+                    {
+                        cmd.CommandText = @"SELECT Id AS CustomerId, FirstName, LastName, CreationDate, LastActiveDate
+                                                                FROM Customer";
+                    }
+
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
                     List<Customer> customers = new List<Customer>();
                     while (reader.Read())
                     {
-                        Customer customer = new Customer
+                        Customer newCustomer = new Customer
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id = reader.GetInt32(reader.GetOrdinal("CustomerId")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                            // You might have more columns
+                            CreationDate = reader.GetDateTime(reader.GetOrdinal("CreationDate")),
+                            LastActiveDate = reader.GetDateTime(reader.GetOrdinal("LastActiveDate"))
                         };
 
-                        customers.Add(customer);
+                        if (include == "products")
+                        {
+                            Product newProduct = new Product
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("ProductId")),
+                                ProductTypeId = reader.GetInt32(reader.GetOrdinal("ProductTypeId")),
+                                Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                                Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
+                            };
+
+                            // Check to see if the newly-created customer has already been added to the customer list
+                            if (!customers.Exists(customerInList => customerInList.Id == newCustomer.Id))
+                            {
+                                customers.Add(newCustomer);
+                                newCustomer.Products.Add(newProduct);
+                            }
+
+                            else
+                            {
+                                Customer existingCustomer = customers.Find(customer => customer.Id == newCustomer.Id);
+                                existingCustomer.Products.Add(newProduct);
+                            }
+                        }
+
                     }
 
                     reader.Close();
@@ -84,6 +141,8 @@ namespace BangazonAPI.Controllers
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                            CreationDate = reader.GetDateTime(reader.GetOrdinal("CreationDate")),
+                            LastActiveDate = reader.GetDateTime(reader.GetOrdinal("LastActiveDate")),
                             // You might have more columns
                         };
                     }
@@ -112,7 +171,7 @@ namespace BangazonAPI.Controllers
                     ";
                     cmd.Parameters.Add(new SqlParameter("@firstName", customer.FirstName));
 
-                    customer.Id = (int) await cmd.ExecuteScalarAsync();
+                    customer.Id = (int)await cmd.ExecuteScalarAsync();
 
                     return CreatedAtRoute("GetCustomer", new { id = customer.Id }, customer);
                 }

@@ -16,17 +16,17 @@ namespace BangazonAPI.Models
         public string LastName { get; set; }
 
         [Required]
-        public DateTime CreationDate { get; private set; }
+        public DateTime CreationDate { get; set; }
 
         [Required]
         public DateTime LastActiveDate { get; set; }
 
         public List<Product> Products { get; set; } = new List<Product>();
         public List<PaymentType> PaymentTypes { get; set; } = new List<PaymentType>();
-        public Customer()
-        {
-            CreationDate = DateTime.Now;
-        }
+        //public Customer()
+        //{
+        //    CreationDate = DateTime.Now;
+        //}
 
     }
 }

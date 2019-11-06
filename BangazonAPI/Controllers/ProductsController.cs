@@ -55,7 +55,8 @@ namespace BangazonAPI.Controllers
                             Price = reader.GetDecimal(reader.GetOrdinal("Price")),
                             Title = reader.GetString(reader.GetOrdinal("Title")),
                             Description = reader.GetString(reader.GetOrdinal("Description")),
-                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
+                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                            //IsDeleted = reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
                         };
 
                         products.Add(newProduct);
@@ -76,7 +77,7 @@ namespace BangazonAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id AS ProductId, ProductTypeId, CustomerId, Price, Title, Description, Quantity
+                    cmd.CommandText = @"SELECT Id AS ProductId, ProductTypeId, CustomerId, Price, Title, Description, Quantity, IsDeleted
                                                                 FROM Product
                                             WHERE id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
@@ -94,7 +95,8 @@ namespace BangazonAPI.Controllers
                             Price = reader.GetDecimal(reader.GetOrdinal("Price")),
                             Title = reader.GetString(reader.GetOrdinal("Title")),
                             Description = reader.GetString(reader.GetOrdinal("Description")),
-                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
+                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                            IsDeleted = reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
                         };
                     }
                     reader.Close();
@@ -119,9 +121,9 @@ namespace BangazonAPI.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                            INSERT INTO Product (ProductTypeId, CustomerId, Price, Title, Description, Quantity)
+                            INSERT INTO Product (ProductTypeId, CustomerId, Price, Title, Description, Quantity, IsDeleted)
                             OUTPUT INSERTED.Id
-                            VALUES (@ProductTypeId, @CustomerId, @Price, @Title, @Description, @Quantity)";
+                            VALUES (@ProductTypeId, @CustomerId, @Price, @Title, @Description, @Quantity, 0)";
                     cmd.Parameters.Add(new SqlParameter("@ProductTypeId", product.ProductTypeId));
                     cmd.Parameters.Add(new SqlParameter("@CustomerId", product.CustomerId));
                     cmd.Parameters.Add(new SqlParameter("@Price", product.Price));
@@ -184,29 +186,27 @@ namespace BangazonAPI.Controllers
         }
 
         // DELETE api/products/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> Delete([FromRoute] int id, [FromBody] Product product)
-        //{
-        //    using (SqlConnection conn = Connection)
-        //    {
-        //        conn.Open();
-        //        using (SqlCommand cmd = conn.CreateCommand())
-        //        {
-        //            //cmd.CommandText = "DELETE FROM Product WHERE Id = @id";
-        //            cmd.CommandText = @"UPDATE Product SET IsDeleted = @IsDeleted
-        //                                                WHERE Id = @id";
-        //            cmd.Parameters.Add(new SqlParameter("@IsDeleted", product.IsDeleted));
-        //            cmd.Parameters.Add(new SqlParameter("@Id", id));
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE Product SET IsDeleted = 1
+                                                        WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@Id", id));
 
-        //            int rowsAffected = await cmd.ExecuteNonQueryAsync();
-        //            if (rowsAffected > 0)
-        //            {
-        //                return new StatusCodeResult(StatusCodes.Status204NoContent);
-        //            }
-        //            throw new Exception("No rows affected");
-        //        }
-        //    }
-        //}
+                    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                    if (rowsAffected > 0)
+                    {
+                        return new StatusCodeResult(StatusCodes.Status204NoContent);
+                    }
+                    throw new Exception("No rows affected");
+                }
+            }
+        }
 
         private bool ProductExists(int id)
         {

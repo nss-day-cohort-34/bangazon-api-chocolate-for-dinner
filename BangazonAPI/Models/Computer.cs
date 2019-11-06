@@ -17,5 +17,6 @@ namespace BangazonAPI.Models
         public string Make { get; set; }
         [Required]
         public string Manufacturer { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

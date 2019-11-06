@@ -112,7 +112,7 @@ namespace TestBangazonAPI
                 /*
                     ACT
                 */
-                var response = await client.PutAsync("/api/productTypes/4",
+                var response = await client.PutAsync("/api/productTypes/5",
                     new StringContent(newProductTypeAsJSON, Encoding.UTF8, "application/json"));
 
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -133,6 +133,18 @@ namespace TestBangazonAPI
                 Assert.Equal(HttpStatusCode.OK, getProductType.StatusCode);
                 Assert.Equal(newProductTypeName, productType.Name);
 
+            }
+        }
+        [Fact]
+        public async Task Task_Delete_ProductType()
+        {
+            using (var client = new APIClientProvider().Client)
+            {
+                var response = await client.DeleteAsync(
+                    "/api/productTypes/4"
+                    );
+                string responseBody = await response.Content.ReadAsStringAsync();
+                Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
             }
         }
 

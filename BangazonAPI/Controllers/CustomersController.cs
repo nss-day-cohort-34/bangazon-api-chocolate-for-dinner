@@ -32,24 +32,24 @@ namespace BangazonAPI.Controllers
 
         // GET api/customers
         [HttpGet]
-        public async Task<IActionResult> Get(string include, string q)
+        public async Task<IActionResult> Get(string _include, string q)
         {
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    if (include == "products")
+                    if (_include == "products")
                     {
                         cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
                                                                        p.Id AS ProductId, p.Title, p.Price, p.ProductTypeId, p.Description, p.Quantity,
                                                                        pt.Name AS ProductType
                                                             FROM Customer c
                                                                        LEFT JOIN Product p ON c.Id = p.CustomerId
-                                                                       INNER JOIN ProductType pt ON pt.Id = p.ProductTypeId";
+                                                                       LEFT JOIN ProductType pt ON pt.Id = p.ProductTypeId";
                     }
 
-                    else if (include == "payments")
+                    else if (_include == "payments")
                     {
                         cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
                                                                         pyt.Id AS PaymentTypeId, pyt.AcctNumber, pyt.Name AS PaymentTypeName
@@ -85,7 +85,7 @@ namespace BangazonAPI.Controllers
                             LastActiveDate = reader.GetDateTime(reader.GetOrdinal("LastActiveDate"))
                         };
 
-                        if (include == "products")
+                        if (_include == "products" && !reader.IsDBNull(reader.GetOrdinal("ProductId")))
                         {
                             Product newProduct = new Product
                             {
@@ -111,7 +111,7 @@ namespace BangazonAPI.Controllers
                             }
                         }
 
-                        else if (include == "payments")
+                        else if (_include == "payments" && !reader.IsDBNull(reader.GetOrdinal("PaymentTypeId")))
                         {
                             PaymentType newPayment = new PaymentType
                             {
@@ -151,14 +151,14 @@ namespace BangazonAPI.Controllers
 
         // GET api/customers/5
         [HttpGet("{id}", Name = "GetCustomer")]
-        public async Task<IActionResult> Get(int id, string include, string q)
+        public async Task<IActionResult> Get(int id, string _include, string q)
         {
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    if (include == "products")
+                    if (_include == "products")
                     {
                         cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
                                                                        p.Id AS ProductId, p.Title, p.Price, p.ProductTypeId, p.Description, p.Quantity,
@@ -169,7 +169,7 @@ namespace BangazonAPI.Controllers
                                                             WHERE c.Id = @Id";
                     }
 
-                    else if (include == "payments")
+                    else if (_include == "payments")
                     {
                         cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
                                                                         pyt.Id AS PaymentTypeId, pyt.AcctNumber, pyt.Name AS PaymentTypeName
@@ -212,7 +212,7 @@ namespace BangazonAPI.Controllers
                             };
                         }
 
-                        if (include == "products")
+                        if (_include == "products")
                         {
                             if (!reader.IsDBNull(reader.GetOrdinal("ProductId")))
                             {
@@ -229,7 +229,7 @@ namespace BangazonAPI.Controllers
                             }
                         }
 
-                        else if (include == "payments")
+                        else if (_include == "payments")
                         {
                             if (!reader.IsDBNull(reader.GetOrdinal("PaymentTypeId")))
                             {

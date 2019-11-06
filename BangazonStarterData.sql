@@ -1,22 +1,4 @@
-﻿ ALTER TABLE Product
-              ADD IsDeleted BIT;
-
- ALTER TABLE Computer
-              ADD IsDeleted BIT;
-
-ALTER TABLE TrainingProgram
-              ADD IsDeleted BIT;
-
-ALTER TABLE ProductType
-              ADD IsDeleted BIT;
-
-ALTER TABLE PaymentType
-              ADD IsDeleted BIT;
-
-ALTER TABLE [Order]
-              ADD IsDeleted BIT;
-
- -- Department
+﻿ -- Department
 INSERT INTO Department ([Name], Budget) VALUES ('Sales', 876534);
 INSERT INTO Department ([Name], Budget) VALUES ('Customer Service', 56777);
 INSERT INTO Department ([Name], Budget) VALUES ('Information Technology', 65400);

@@ -22,6 +22,6 @@ namespace BangazonAPI.Models
         public string Description { get; set; }
         [Required]
         public int Quantity { get; set; }
-
+        public bool IsDeleted { get; set; }
     }
 }

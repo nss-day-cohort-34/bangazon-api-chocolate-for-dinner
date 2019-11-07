@@ -41,15 +41,16 @@ namespace BangazonAPI.Controllers
                 {
                     if (completed == "false")
                     {
-                        cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees
+                        cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees, IsDeleted
                                               FROM TrainingProgram
-                                             WHERE (StartDate >= SYSDATETIME());";
+                                             WHERE (StartDate >= SYSDATETIME()) AND IsDeleted = 0";
                     }
 
                     else
                     {
-                        cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees
-                                              FROM TrainingProgram;";
+                        cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees, IsDeleted
+                                              FROM TrainingProgram
+                                             WHERE IsDeleted = 0";
                     }
 
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -161,16 +162,15 @@ namespace BangazonAPI.Controllers
                     {
                         cmd.CommandText = @"
                             UPDATE TrainingProgram
-                            SET Name = @FirstName, 
-                                StartDate = @StartDate, 
-                                EndDate = @EndDate, 
-                                MaxAttendees = @MaxAttendees
-                                IsDeleted = @IsDeleted
-                            WHERE Id = @Id";
+                               SET Name = @Name, 
+                                   StartDate = @StartDate, 
+                                   EndDate = @EndDate, 
+                                   MaxAttendees = @MaxAttendees,
+                                   IsDeleted = @IsDeleted
+                             WHERE Id = @Id";
                         cmd.Parameters.Add(new SqlParameter("@Name", trainingProgram.Name));
                         cmd.Parameters.Add(new SqlParameter("@StartDate", trainingProgram.StartDate));
                         cmd.Parameters.Add(new SqlParameter("@EndDate", trainingProgram.EndDate));
-                        cmd.Parameters.Add(new SqlParameter("@MaxAttendees", trainingProgram.MaxAttendees));
                         cmd.Parameters.Add(new SqlParameter("@MaxAttendees", trainingProgram.MaxAttendees));
                         cmd.Parameters.Add(new SqlParameter("@IsDeleted", trainingProgram.IsDeleted));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
@@ -241,11 +241,3 @@ namespace BangazonAPI.Controllers
         }
     }
 }
-
-        // DELETE api/trainingPrograms/5
-        ////[HttpDelete("{id}")]
-        ////public async Task<IActionResult> Delete(int id)
-        ////{
-        ////    throw new NotImplementedException("This method isn't implemented...yet.");
-        ////}
-

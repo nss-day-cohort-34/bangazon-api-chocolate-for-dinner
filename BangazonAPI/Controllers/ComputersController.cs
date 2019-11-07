@@ -48,7 +48,7 @@ namespace BangazonAPI.Controllers
 
                         cmd.CommandText = commandText;
 
-                        SqlDataReader reader = cmd.ExecuteReader();
+                        SqlDataReader reader = await cmd.ExecuteReaderAsync();
                         List<Computer> computers = new List<Computer>();
                         Computer computer = null;
 
@@ -121,7 +121,7 @@ namespace BangazonAPI.Controllers
                 {
                     cmd.CommandText = $"SELECT Id, PurchaseDate, Make, Manufacturer, DecomissionDate FROM Computer WHERE id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
                     Computer computerToDisplay = null;
 
@@ -176,7 +176,7 @@ namespace BangazonAPI.Controllers
                     cmd.Parameters.Add(new SqlParameter("@Make", computer.Make));
                     cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));
 
-                    int newId = (int)cmd.ExecuteScalar();
+                    int newId = (int) await cmd.ExecuteScalarAsync();
                     computer.Id = newId;
                     computer.DecomissionDate = DateTime.MinValue;
 
@@ -208,7 +208,7 @@ namespace BangazonAPI.Controllers
                         cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
                         if (rowsAffected > 0)
                         {
                             return new StatusCodeResult(StatusCodes.Status204NoContent);
@@ -252,7 +252,7 @@ namespace BangazonAPI.Controllers
                         cmd.Parameters.Add(new SqlParameter("@id", id));
                         cmd.Parameters.Add(new SqlParameter("@currentDate", currentDate));
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
                         if (rowsAffected > 0)
                         {
                             return new StatusCodeResult(StatusCodes.Status204NoContent);

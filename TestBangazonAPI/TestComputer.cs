@@ -15,7 +15,7 @@ namespace TestBangazonAPI
     {
 
 
-        // Create a new computer in the db and make sure we get a 200 OK status code back
+       
 
         public async Task<Computer> createComputer(HttpClient client)
         {
@@ -31,7 +31,7 @@ namespace TestBangazonAPI
 
 
             HttpResponseMessage response = await client.PostAsync(
-                "api/computer",
+                "api/computers",
                 new StringContent(computerAsJSON, Encoding.UTF8, "application/json")
             );
 
@@ -49,7 +49,7 @@ namespace TestBangazonAPI
         // Delete a computer in the database and make sure we get a no content status code back
         public async Task deleteComputer(Computer computer, HttpClient client)
         {
-            HttpResponseMessage deleteResponse = await client.DeleteAsync($"api/computer/{computer.Id}");
+            HttpResponseMessage deleteResponse = await client.DeleteAsync($"api/computers/{computer.Id}");
             deleteResponse.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
@@ -59,12 +59,14 @@ namespace TestBangazonAPI
         [Fact]
         public async Task Test_Get_All_Computers()
         {
+
             // Use the http client
+            //please workkkkkk
             using (HttpClient client = new APIClientProvider().Client)
             {
 
                 // Call the route to get all our computers; wait for a response object
-                HttpResponseMessage response = await client.GetAsync("api/computer");
+                HttpResponseMessage response = await client.GetAsync("api/computers");
 
                 // Make sure that a response comes back at all
                 response.EnsureSuccessStatusCode();
@@ -94,7 +96,7 @@ namespace TestBangazonAPI
                 Computer newComputer = await createComputer(client);
 
                 // Try to get that computer from the database
-                HttpResponseMessage response = await client.GetAsync($"api/computer/{newComputer.Id}");
+                HttpResponseMessage response = await client.GetAsync($"api/computers/{newComputer.Id}");
 
                 response.EnsureSuccessStatusCode();
 
@@ -156,7 +158,7 @@ namespace TestBangazonAPI
 
                 // Make a PUT request with the new info
                 HttpResponseMessage response = await client.PutAsync(
-                    $"api/computer/{newComputer.Id}",
+                    $"api/computers/{newComputer.Id}",
                     new StringContent(modifiedComputerAsJSON, Encoding.UTF8, "application/json")
                 );
 
@@ -173,7 +175,7 @@ namespace TestBangazonAPI
                     GET section
                  */
                 // Try to GET the computer we just edited
-                HttpResponseMessage getComputer = await client.GetAsync($"api/computer/{newComputer.Id}");
+                HttpResponseMessage getComputer = await client.GetAsync($"api/computers/{newComputer.Id}");
                 getComputer.EnsureSuccessStatusCode();
 
                 string getComputerBody = await getComputer.Content.ReadAsStringAsync();

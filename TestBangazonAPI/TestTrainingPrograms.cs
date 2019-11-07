@@ -27,7 +27,6 @@ namespace TestBangazonAPI
                 */
                 var response = await client.GetAsync("/api/trainingPrograms");
 
-
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var trainingPrograms = JsonConvert.DeserializeObject<List<TrainingProgram>>(responseBody);
                 /*

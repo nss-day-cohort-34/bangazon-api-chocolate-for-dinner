@@ -46,22 +46,11 @@ namespace TestBangazonAPI
 
         }
 
-        // Delete a computer in the database and make sure we get a no content status code back
-        public async Task deleteComputer(Computer computer, HttpClient client)
-        {
-            HttpResponseMessage deleteResponse = await client.DeleteAsync($"api/computers/{computer.Id}");
-            deleteResponse.EnsureSuccessStatusCode();
-            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
-
-        }
-
-
         [Fact]
         public async Task Test_Get_All_Computers()
         {
 
             // Use the http client
-            //please workkkkkk
             using (HttpClient client = new APIClientProvider().Client)
             {
 
@@ -112,7 +101,7 @@ namespace TestBangazonAPI
 
 
                 // Clean up after ourselves- delete computer!
-                deleteComputer(newComputer, client);
+                await deleteComputer(newComputer, client);
             }
         }
 
@@ -132,7 +121,7 @@ namespace TestBangazonAPI
 
 
                 // Clean up after ourselves - delete Computer!
-                deleteComputer(newComputer, client);
+                await deleteComputer(newComputer, client);
             }
         }
 
@@ -187,12 +176,17 @@ namespace TestBangazonAPI
                 Assert.Equal(newMake, modifiedComputer.Make);
 
                 // Clean up after ourselves- delete it
-                deleteComputer(modifiedComputer, client);
+                await deleteComputer(modifiedComputer, client);
             }
         }
+        // Delete a computer in the database and make sure we get a no content status code back
+        private async Task deleteComputer(Computer computer, HttpClient client)
+        {
+            HttpResponseMessage deleteResponse = await client.DeleteAsync($"api/computers/{computer.Id}");
+            deleteResponse.EnsureSuccessStatusCode();
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
-
-
+        }
 
     }
 }

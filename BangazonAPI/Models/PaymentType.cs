@@ -16,6 +16,5 @@ namespace BangazonAPI.Models
         public string Name { get; set; }
         [Required]
         public int CustomerId { get; set; }
-        public bool IsDeleted { get; set; }
     }
 }

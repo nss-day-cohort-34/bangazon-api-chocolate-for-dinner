@@ -259,10 +259,10 @@ namespace BangazonAPI.Controllers
                     cmd.CommandText = @"
                         INSERT INTO [Order] (CustomerId, PaymentTypeId)
                         OUTPUT INSERTED.Id
-                        VALUES (@customerId, @paymentTypeId)
+                        VALUES (@customerId, null)
                     ";
                     cmd.Parameters.Add(new SqlParameter("@customerId", order.CustomerId));
-                    cmd.Parameters.Add(new SqlParameter("@paymentTypeId", order.PaymentTypeId));
+                  
 
                     order.Id = (int)await cmd.ExecuteScalarAsync();
 

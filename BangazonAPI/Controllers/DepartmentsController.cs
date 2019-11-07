@@ -111,105 +111,72 @@ namespace BangazonAPI.Controllers
             }
         }
 
-        //// GET api/customers/5
-        //[HttpGet("{id}", Name = "GetCustomer")]
-        //public async Task<IActionResult> Get(int id, string _include, string q)
-        //{
-        //    using (SqlConnection conn = Connection)
-        //    {
-        //        conn.Open();
-        //        using (SqlCommand cmd = conn.CreateCommand())
-        //        {
-        //            if (_include == "products")
-        //            {
-        //                cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
-        //                                                               p.Id AS ProductId, p.Title, p.Price, p.ProductTypeId, p.Description, p.Quantity,
-        //                                                               pt.Name AS ProductType
-        //                                                    FROM Customer c
-        //                                                               LEFT JOIN Product p ON c.Id = p.CustomerId
-        //                                                               INNER JOIN ProductType pt ON pt.Id = p.ProductTypeId
-        //                                                    WHERE c.Id = @Id";
-        //            }
+        // GET api/departments/5
+        [HttpGet("{id}", Name = "GetDepartment")]
+        public async Task<IActionResult> Get(int id, string _include)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    if (_include == "employees")
+                    {
+                        cmd.CommandText = @"SELECT d.Id, d.Name, d.Budget, e.FirstName
+                                                 , e.LastName, e.IsSuperVisor, e.Id AS EmployeeId
+                                              FROM Department d 
+                                         LEFT JOIN Employee e ON d.Id = e.DepartmentId
+                                             WHERE d.Id = @id";
+                    }
 
-        //            else if (_include == "payments")
-        //            {
-        //                cmd.CommandText = @"SELECT c.Id AS CustomerId, c.FirstName, c.LastName, c.CreationDate, c.LastActiveDate,
-        //                                                                pyt.Id AS PaymentTypeId, pyt.AcctNumber, pyt.Name AS PaymentTypeName
-        //                                                FROM Customer c
-        //                                                                LEFT JOIN PaymentType pyt ON c.Id = pyt.CustomerId
-        //                                                    WHERE c.Id = @Id";
-        //            }
+                    else
+                    {
+                        cmd.CommandText = @"SELECT d.Id, d.Name, d.Budget
+                                              FROM Department d
+                                             WHERE d.Id = @id";
+                    }
 
-        //            else if (q != null)
-        //            {
-        //                cmd.CommandText = @"SELECT Id AS CustomerId, FirstName, LastName, CreationDate, LastActiveDate
-        //                                                        FROM Customer
-        //                                                        WHERE Id = @Id AND (FirstName LIKE @q OR LastName LIKE @q)";
-        //                cmd.Parameters.Add(new SqlParameter("@q", $"%{q}%"));
-        //            }
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
 
-        //            else
-        //            {
-        //                cmd.CommandText = @"SELECT Id AS CustomerId, FirstName, LastName, CreationDate, LastActiveDate
-        //                                                        FROM Customer
-        //                                                        WHERE Id = @Id";
-        //            }
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
-        //            cmd.Parameters.Add(new SqlParameter("@Id", id));
-        //            SqlDataReader reader = await cmd.ExecuteReaderAsync();
+                    Department department = new Department();
+                    while (reader.Read())
+                    {
+                        Department newDepartment = new Department
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Budget = reader.GetInt32(reader.GetOrdinal("Budget"))
+                        };
 
-        //            Customer selectedCustomer = null;
+                        if (_include == "employees" && !reader.IsDBNull(reader.GetOrdinal("EmployeeId")))
+                        {
+                            Employee newEmployee = new Employee
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                DepartmentId = reader.GetInt32(reader.GetOrdinal("Id")),
+                                IsSuperVisor = reader.GetBoolean(reader.GetOrdinal("IsSuperVisor"))
+                            };
 
-        //            while (reader.Read())
-        //            {
-        //                if (selectedCustomer == null)
-        //                {
-        //                    selectedCustomer = new Customer
-        //                    {
-        //                        Id = reader.GetInt32(reader.GetOrdinal("CustomerId")),
-        //                        FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-        //                        LastName = reader.GetString(reader.GetOrdinal("LastName")),
-        //                        CreationDate = reader.GetDateTime(reader.GetOrdinal("CreationDate")),
-        //                        LastActiveDate = reader.GetDateTime(reader.GetOrdinal("LastActiveDate"))
-        //                    };
-        //                }
+                            department.Employees.Add(newEmployee);
+                            
+                        }
+                        else
+                        {
+                            department = newDepartment;
+                        }
 
-        //                if (_include == "products")
-        //                {
-        //                    if (!reader.IsDBNull(reader.GetOrdinal("ProductId")))
-        //                    {
-        //                        Product newProduct = new Product
-        //                        {
-        //                            Id = reader.GetInt32(reader.GetOrdinal("ProductId")),
-        //                            ProductTypeId = reader.GetInt32(reader.GetOrdinal("ProductTypeId")),
-        //                            Price = reader.GetDecimal(reader.GetOrdinal("Price")),
-        //                            Title = reader.GetString(reader.GetOrdinal("Title")),
-        //                            Description = reader.GetString(reader.GetOrdinal("Description")),
-        //                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
-        //                        };
-        //                        selectedCustomer.Products.Add(newProduct);
-        //                    }
-        //                }
+                    }
 
-        //                else if (_include == "payments")
-        //                {
-        //                    if (!reader.IsDBNull(reader.GetOrdinal("PaymentTypeId")))
-        //                    {
-        //                        PaymentType newPayment = new PaymentType
-        //                        {
-        //                            Id = reader.GetInt32(reader.GetOrdinal("PaymentTypeId")),
-        //                            AcctNumber = reader.GetString(reader.GetOrdinal("AcctNumber")),
-        //                            Name = reader.GetString(reader.GetOrdinal("PaymentTypeName"))
-        //                        };
-        //                        selectedCustomer.PaymentTypes.Add(newPayment);
-        //                    }
-        //                }
-        //            }
-        //            reader.Close();
-        //            return Ok(selectedCustomer);
-        //        }
-        //    }
-        //}
+                    reader.Close();
+
+                    return Ok(department);
+                }
+            }
+        }
 
         //// POST api/customers
         //[HttpPost]

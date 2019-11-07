@@ -41,21 +41,45 @@ namespace BangazonAPI.Controllers
                 {
                     if (completed == "false")
                     {
-                        cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees, IsDeleted
-                                              FROM TrainingProgram
-                                             WHERE (StartDate >= SYSDATETIME()) AND IsDeleted = 0";
+                        cmd.CommandText = @"SELECT tp.Id, 
+                                                   tp.Name, 
+                                                   tp.StartDate, 
+                                                   tp.EndDate, 
+                                                   tp.MaxAttendees, 
+                                                   tp.IsDeleted,
+                                                   e.FirstName,
+                                                   e.LastName,
+                                                   e.Id as EmployeeId
+                                              FROM TrainingProgram tp
+                                                   Left Join EmployeeTraining et 
+                                                ON tp.Id = et.TrainingProgramId
+                                                   Left Join Employee e 
+                                                ON e.Id = et.EmployeeId
+                                             WHERE (EndDate >= SYSDATETIME()) AND IsDeleted = 0";
                     }
 
                     else
                     {
-                        cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees, IsDeleted
-                                              FROM TrainingProgram
+                        cmd.CommandText = @"SELECT tp.Id, 
+                                                   tp.Name, 
+                                                   tp.StartDate, 
+                                                   tp.EndDate, 
+                                                   tp.MaxAttendees, 
+                                                   tp.IsDeleted,
+                                                   e.FirstName,
+                                                   e.LastName,
+                                                   e.Id as EmployeeId
+                                              FROM TrainingProgram tp
+                                                   Left Join EmployeeTraining et 
+                                                ON tp.Id = et.TrainingProgramId
+                                                   Left Join Employee e 
+                                                ON e.Id = et.EmployeeId
                                              WHERE IsDeleted = 0";
                     }
 
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
-                    List<TrainingProgram> TrainingPrograms = new List<TrainingProgram>();
+                    List<TrainingProgram> trainingPrograms = new List<TrainingProgram>();
                     while (reader.Read())
                     {
                         TrainingProgram newtrainingProgram = new TrainingProgram
@@ -66,12 +90,29 @@ namespace BangazonAPI.Controllers
                             EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate")),
                             MaxAttendees = reader.GetInt32(reader.GetOrdinal("MaxAttendees"))
                         };
-                        TrainingPrograms.Add(newtrainingProgram);
+
+                        Employee newEmployee = new Employee
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                            FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                            LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                        };
+
+                        if (!trainingPrograms.Exists(t => t.Id == newtrainingProgram.Id))
+                        {
+                            trainingPrograms.Add(newtrainingProgram);
+                            newtrainingProgram.Attendees.Add(newEmployee);
+                        }
+                        else
+                        {
+                            TrainingProgram existingTrainingProgram = trainingPrograms.Find(t => t.Id == newtrainingProgram.Id);
+                            existingTrainingProgram.Attendees.Add(newEmployee);
+                        }
                     }
 
                     reader.Close();
 
-                    return Ok(TrainingPrograms);
+                    return Ok(trainingPrograms);
                 }
             }
         }
@@ -86,9 +127,21 @@ namespace BangazonAPI.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
 
-                    cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees
-                                          FROM TrainingProgram
-                                         WHERE Id = @Id";
+                    cmd.CommandText = @"SELECT tp.Id, 
+                                               tp.Name, 
+                                               tp.StartDate, 
+                                               tp.EndDate, 
+                                               tp.MaxAttendees, 
+                                               tp.IsDeleted,
+                                               e.FirstName,
+                                               e.LastName,
+                                               e.Id as EmployeeId
+                                         FROM TrainingProgram tp
+                                              Left Join EmployeeTraining et 
+                                           ON tp.Id = et.TrainingProgramId
+                                              Left Join Employee e 
+                                           ON e.Id = et.EmployeeId
+                                        WHERE IsDeleted = 0 AND tp.Id = @Id";
 
                     cmd.Parameters.Add(new SqlParameter("@Id", id));
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -109,6 +162,17 @@ namespace BangazonAPI.Controllers
                             };
                         }
 
+                        if (!reader.IsDBNull(reader.GetOrdinal("EmployeeId")))
+                        {
+                            Employee newEmployee = new Employee
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                            };
+
+                            selectedtrainingProgram.Attendees.Add(newEmployee);
+                        }
                     }
                     reader.Close();
                     return Ok(selectedtrainingProgram);

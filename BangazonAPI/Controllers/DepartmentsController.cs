@@ -178,100 +178,89 @@ namespace BangazonAPI.Controllers
             }
         }
 
-        //// POST api/customers
-        //[HttpPost]
-        //public async Task<IActionResult> Post([FromBody] Customer customer)
-        //{
-        //    using (SqlConnection conn = Connection)
-        //    {
-        //        conn.Open();
-        //        using (SqlCommand cmd = conn.CreateCommand())
-        //        {
-        //            // More string interpolation
-        //            cmd.CommandText = @"
-        //                INSERT INTO Customer (FirstName, LastName, CreationDate, LastActiveDate)
-        //                OUTPUT INSERTED.Id
-        //                VALUES (@FirstName, @LastName, @CreationDate, @LastActiveDate)
-        //            ";
-        //            cmd.Parameters.Add(new SqlParameter("@FirstName", customer.FirstName));
-        //            cmd.Parameters.Add(new SqlParameter("@LastName", customer.LastName));
-        //            cmd.Parameters.Add(new SqlParameter("@CreationDate", customer.CreationDate));
-        //            cmd.Parameters.Add(new SqlParameter("@LastActiveDate", customer.LastActiveDate));
+        // POST api/departments
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] Department department)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    // More string interpolation
+                    cmd.CommandText = @"
+                        INSERT INTO Department (Name, Budget)
+                        OUTPUT INSERTED.Id
+                        VALUES (@Name, @Budget)
+                    ";
+                    cmd.Parameters.Add(new SqlParameter("@Name", department.Name));
+                    cmd.Parameters.Add(new SqlParameter("@Budget", department.Budget));
 
-        //            customer.Id = (int)await cmd.ExecuteScalarAsync();
+                    department.Id = (int)await cmd.ExecuteScalarAsync();
 
-        //            return CreatedAtRoute("GetCustomer", new { id = customer.Id }, customer);
-        //        }
-        //    }
-        //}
+                    return CreatedAtRoute("GetDepartment", new { id = department.Id }, department);
+                }
+            }
+        }
 
-        //// PUT api/customers/5
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Put([FromRoute] int id, [FromBody] Customer customer)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection conn = Connection)
-        //        {
-        //            conn.Open();
-        //            using (SqlCommand cmd = conn.CreateCommand())
-        //            {
-        //                cmd.CommandText = @"
-        //                    UPDATE Customer
-        //                    SET FirstName = @FirstName, LastName = @LastName, CreationDate = @CreationDate, LastActiveDate = @LastActiveDate
-        //                    WHERE Id = @Id";
-        //                cmd.Parameters.Add(new SqlParameter("@FirstName", customer.FirstName));
-        //                cmd.Parameters.Add(new SqlParameter("@LastName", customer.LastName));
-        //                cmd.Parameters.Add(new SqlParameter("@CreationDate", customer.CreationDate));
-        //                cmd.Parameters.Add(new SqlParameter("@LastActiveDate", customer.LastActiveDate));
-        //                cmd.Parameters.Add(new SqlParameter("@id", id));
+        // PUT api/departments/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] Department department)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                            UPDATE Department
+                            SET Name = @Name, Budget = @Budget 
+                            WHERE Id = @id";
+                        cmd.Parameters.Add(new SqlParameter("@Name", department.Name));
+                        cmd.Parameters.Add(new SqlParameter("@Budget", department.Budget));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
 
-        //                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
 
-        //                if (rowsAffected > 0)
-        //                {
-        //                    return new StatusCodeResult(StatusCodes.Status204NoContent);
-        //                }
+                        if (rowsAffected > 0)
+                        {
+                            return new StatusCodeResult(StatusCodes.Status204NoContent);
+                        }
 
-        //                throw new Exception("No rows affected");
-        //            }
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        if (!CustomerExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-        //}
+                        throw new Exception("No rows affected");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (!DepartmentExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
 
-        ////// DELETE api/customers/5
-        ////[HttpDelete("{id}")]
-        ////public async Task<IActionResult> Delete(int id)
-        ////{
-        ////    throw new NotImplementedException("This method isn't implemented...yet.");
-        ////}
+        private bool DepartmentExists(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id FROM Department WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
 
-        //private bool CustomerExists(int id)
-        //{
-        //    using (SqlConnection conn = Connection)
-        //    {
-        //        conn.Open();
-        //        using (SqlCommand cmd = conn.CreateCommand())
-        //        {
-        //            cmd.CommandText = "SELECT Id FROM Customer WHERE Id = @id";
-        //            cmd.Parameters.Add(new SqlParameter("@id", id));
+                    SqlDataReader reader = cmd.ExecuteReader();
 
-        //            SqlDataReader reader = cmd.ExecuteReader();
-
-        //            return reader.Read();
-        //        }
-        //    }
-        //}
+                    return reader.Read();
+                }
+            }
+        }
     }
 }

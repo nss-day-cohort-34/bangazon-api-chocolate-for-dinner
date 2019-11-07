@@ -1,18 +1,3 @@
-USE MASTER
-GO
-
-IF NOT EXISTS (
-    SELECT [name]
-    FROM sys.databases
-    WHERE [name] = N'BangazonAPI'
-)
-CREATE DATABASE BangazonAPI
-GO
-
-USE BangazonAPI
-GO
-
-
 CREATE TABLE Department (
 	Id INTEGER NOT NULL PRIMARY KEY IDENTITY,
 	[Name] VARCHAR(55) NOT NULL,

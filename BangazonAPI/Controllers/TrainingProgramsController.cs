@@ -84,7 +84,7 @@ namespace BangazonAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-               
+
                     cmd.CommandText = @"SELECT Id, Name, StartDate, EndDate, MaxAttendees
                                           FROM TrainingProgram
                                          WHERE Id = @Id";
@@ -148,73 +148,85 @@ namespace BangazonAPI.Controllers
             }
         }
 
-        // PUT api/trainingPrograms/5
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Put([FromRoute] int id, [FromBody] trainingProgram trainingProgram)
-        //{
-        //    try
-        //    {
-        //        using (SqlConnection conn = Connection)
-        //        {
-        //            conn.Open();
-        //            using (SqlCommand cmd = conn.CreateCommand())
-        //            {
-        //                cmd.CommandText = @"
-        //                    UPDATE trainingProgram
-        //                    SET FirstName = @FirstName, LastName = @LastName, CreationDate = @CreationDate, LastActiveDate = @LastActiveDate
-        //                    WHERE Id = @Id";
-        //                cmd.Parameters.Add(new SqlParameter("@FirstName", trainingProgram.FirstName));
-        //                cmd.Parameters.Add(new SqlParameter("@LastName", trainingProgram.LastName));
-        //                cmd.Parameters.Add(new SqlParameter("@CreationDate", trainingProgram.CreationDate));
-        //                cmd.Parameters.Add(new SqlParameter("@LastActiveDate", trainingProgram.LastActiveDate));
-        //                cmd.Parameters.Add(new SqlParameter("@id", id));
+        // PUT api/trainingPrograms/1
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] TrainingProgram trainingProgram)
+        {
+            try
+            {
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"
+                            UPDATE TrainingProgram
+                            SET Name = @FirstName, 
+                                StartDate = @StartDate, 
+                                EndDate = @EndDate, 
+                                MaxAttendees = @MaxAttendees
+                                IsDeleted = @IsDeleted
+                            WHERE Id = @Id";
+                        cmd.Parameters.Add(new SqlParameter("@Name", trainingProgram.Name));
+                        cmd.Parameters.Add(new SqlParameter("@StartDate", trainingProgram.StartDate));
+                        cmd.Parameters.Add(new SqlParameter("@EndDate", trainingProgram.EndDate));
+                        cmd.Parameters.Add(new SqlParameter("@MaxAttendees", trainingProgram.MaxAttendees));
+                        cmd.Parameters.Add(new SqlParameter("@MaxAttendees", trainingProgram.MaxAttendees));
+                        cmd.Parameters.Add(new SqlParameter("@IsDeleted", trainingProgram.IsDeleted));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
 
-        //                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
 
-        //                if (rowsAffected > 0)
-        //                {
-        //                    return new StatusCodeResult(StatusCodes.Status204NoContent);
-        //                }
+                        if (rowsAffected > 0)
+                        {
+                            return new StatusCodeResult(StatusCodes.Status204NoContent);
+                        }
 
-        //                throw new Exception("No rows affected");
-        //            }
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        if (!trainingProgramExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-        //}
+                        throw new Exception("No rows affected");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (!TrainingProgramExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-        ////// DELETE api/trainingPrograms/5
+        }
+
+
+        // Write soft delete here 
+
+
+        private bool TrainingProgramExists(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id FROM trainingProgram WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    return reader.Read();
+                }
+            }
+        }
+    }
+}
+
+        // DELETE api/trainingPrograms/5
         ////[HttpDelete("{id}")]
         ////public async Task<IActionResult> Delete(int id)
         ////{
         ////    throw new NotImplementedException("This method isn't implemented...yet.");
         ////}
 
-        //private bool trainingProgramExists(int id)
-        //{
-        //    using (SqlConnection conn = Connection)
-        //    {
-        //        conn.Open();
-        //        using (SqlCommand cmd = conn.CreateCommand())
-        //        {
-        //            cmd.CommandText = "SELECT Id FROM trainingProgram WHERE Id = @id";
-        //            cmd.Parameters.Add(new SqlParameter("@id", id));
-
-        //            SqlDataReader reader = cmd.ExecuteReader();
-
-        //            return reader.Read();
-        //        }
-        //    }
-        //}
-    }
-}

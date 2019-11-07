@@ -162,6 +162,9 @@ namespace BangazonAPI.Controllers
                             };
 
                             department.Employees.Add(newEmployee);
+                            department.Id = newDepartment.Id;
+                            department.Name = newDepartment.Name;
+                            department.Budget = newDepartment.Budget;
                             
                         }
                         else

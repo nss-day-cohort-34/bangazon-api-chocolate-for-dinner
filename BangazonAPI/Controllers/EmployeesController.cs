@@ -46,7 +46,7 @@ namespace BangazonAPI.Controllers
                                          LEFT JOIN Department d ON e.DepartmentId = d.Id
                                          LEFT JOIN ComputerEmployee ce ON ce.EmployeeId = e.Id
                                          LEFT JOIN Computer c ON ce.ComputerId = c.Id
-                                             WHERE c.DecomissionDate IS Null";
+                                             WHERE c.DecomissionDate IS Null AND ce.UnassignDate IS Null";
                    
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
@@ -104,7 +104,7 @@ namespace BangazonAPI.Controllers
                                          LEFT JOIN Department d ON e.DepartmentId = d.Id
                                          LEFT JOIN ComputerEmployee ce ON ce.EmployeeId = e.Id
                                          LEFT JOIN Computer c ON ce.ComputerId = c.Id
-                                             WHERE c.DecomissionDate IS Null AND e.Id = @id";
+                                             WHERE c.DecomissionDate IS Null AND ce.UnassignDate IS Null AND e.Id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 

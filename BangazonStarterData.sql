@@ -67,16 +67,16 @@ INSERT INTO PaymentType (AcctNumber, Name, CustomerId, IsDeleted) VALUES ('87459
 INSERT INTO PaymentType (AcctNumber, Name, CustomerId, IsDeleted) VALUES ('2498928520495823', 'MasterCard', 5, 0)
 
 -- Order
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (1, 1, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (1, null, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (1, 2, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (2, 3, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (2, null, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (3, 4, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (4, 5, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (4, 6, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (4, null, 0)
-INSERT INTO [Order] (CustomerId, PaymentTypeId, IsDeleted) VALUES (5, 8, 0)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (1, 1)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (1, null)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (1, 2)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (2, 3)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (2, null)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (3, 4)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (4, 5)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (4, 6)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (4, null)
+INSERT INTO [Order] (CustomerId, PaymentTypeId) VALUES (5, 8)
 
 -- OrderProduct
 INSERT INTO OrderProduct (OrderId, ProductId) VALUES (1, 1)

@@ -32,9 +32,9 @@ namespace BangazonAPI.Controllers
         }
 
 
-        //GET:Code for getting a list of Computers which are ACTIVE in the system
+   
         [HttpGet]
-        public async Task<IActionResult> GetAllComputers()
+        public async Task<IActionResult> GetAllComputers(string active)
         {
 
             using (SqlConnection conn = Connection)
@@ -42,33 +42,68 @@ namespace BangazonAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    string commandText = $"SELECT Id, PurchaseDate, Make, Manufacturer FROM Computer WHERE DecomissionDate IS NULL";
-
-                    cmd.CommandText = commandText;
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    List<Computer> computers = new List<Computer>();
-                    Computer computer = null;
-
-
-                    while (reader.Read())
+                    if (active == "false")
                     {
-                        computer = new Computer
+                        string commandText = $"SELECT Id, PurchaseDate, Make, Manufacturer, DecomissionDate FROM Computer WHERE DecomissionDate IS NOT NULL";
+
+                        cmd.CommandText = commandText;
+
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        List<Computer> computers = new List<Computer>();
+                        Computer computer = null;
+
+
+                        while (reader.Read())
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
-                            Make = reader.GetString(reader.GetOrdinal("Make")),
-                            Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"))
-                        };
+                            computer = new Computer
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
+                                Make = reader.GetString(reader.GetOrdinal("Make")),
+                                Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer")),
+                                DecomissionDate = reader.GetDateTime(reader.GetOrdinal("DecomissionDate"))
+
+                            };
 
 
-                        computers.Add(computer);
+                            computers.Add(computer);
+                        }
+
+
+                        reader.Close();
+
+                        return Ok(computers);
                     }
+                    else
+                    {
+                        string commandText = $"SELECT Id, PurchaseDate, Make, Manufacturer FROM Computer WHERE DecomissionDate IS NULL";
+
+                        cmd.CommandText = commandText;
+
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        List<Computer> computers = new List<Computer>();
+                        Computer computer = null;
 
 
-                    reader.Close();
+                        while (reader.Read())
+                        {
+                            computer = new Computer
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PurchaseDate")),
+                                Make = reader.GetString(reader.GetOrdinal("Make")),
+                                Manufacturer = reader.GetString(reader.GetOrdinal("Manufacturer"))
+                            };
 
-                    return Ok(computers);
+
+                            computers.Add(computer);
+                        }
+
+
+                        reader.Close();
+
+                        return Ok(computers);
+                    }
                 }
             }
         }
@@ -162,13 +197,13 @@ namespace BangazonAPI.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"UPDATE Computer
-                                                        SET PurchaseDate = @PurchaseDate,
+                                                        SET 
                                                         DecomissionDate = Null,
                                                         Make=@Make,
                                                         Manufacturer = @Manufacturer
                                                         WHERE id = @id";
 
-                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", computer.PurchaseDate));
+           
                         cmd.Parameters.Add(new SqlParameter("@Make", computer.Make));
                         cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
@@ -195,9 +230,9 @@ namespace BangazonAPI.Controllers
             }
         }
 
-        // DELETE: Code for deleting a payment type--soft delete actually changes Deocmmission date to a non-null value
+       
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Computer([FromRoute] int id, bool HardDelete)
+        public async Task<IActionResult> Computer([FromRoute] int id)
         {
             try
             {
@@ -207,17 +242,9 @@ namespace BangazonAPI.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
 
-                        if (HardDelete == true)
-                        {
-                            cmd.CommandText = @"DELETE Computer
-                                              WHERE id = @id";
-                        }
-                        else
-                        {
-                            cmd.CommandText = @"UPDATE Computer
+                        cmd.CommandText = @"UPDATE Computer
                                             SET DecomissionDate = @currentDate
                                             WHERE id = @id";
-                        }
 
                         //Set the current date to today
                         DateTime currentDate = DateTime.Now;

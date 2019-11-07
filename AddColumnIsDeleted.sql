@@ -12,6 +12,3 @@ ALTER TABLE ProductType
 
 ALTER TABLE PaymentType
               ADD IsDeleted BIT;
-
-ALTER TABLE [Order]
-              ADD IsDeleted BIT;

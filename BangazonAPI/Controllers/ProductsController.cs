@@ -94,8 +94,7 @@ namespace BangazonAPI.Controllers
                             Price = reader.GetDecimal(reader.GetOrdinal("Price")),
                             Title = reader.GetString(reader.GetOrdinal("Title")),
                             Description = reader.GetString(reader.GetOrdinal("Description")),
-                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
-                            IsDeleted = reader.GetBoolean(reader.GetOrdinal("IsDeleted"))
+                            Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
                         };
                     }
                     reader.Close();

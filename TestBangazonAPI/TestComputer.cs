@@ -49,7 +49,7 @@ namespace TestBangazonAPI
         // Delete a computer in the database and make sure we get a no content status code back
         public async Task deleteComputer(Computer computer, HttpClient client)
         {
-            HttpResponseMessage deleteResponse = await client.DeleteAsync($"api/computer/{computer.Id}?HardDelete=true");
+            HttpResponseMessage deleteResponse = await client.DeleteAsync($"api/computer/{computer.Id}");
             deleteResponse.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 

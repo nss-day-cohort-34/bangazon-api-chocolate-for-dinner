@@ -200,9 +200,28 @@ namespace BangazonAPI.Controllers
 
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE TrainingProgram 
+                                           SET IsDeleted = 1
+                                         WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@Id", id));
 
-        // Write soft delete here 
-
+                    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                    if (rowsAffected > 0)
+                    {
+                        return new StatusCodeResult(StatusCodes.Status204NoContent);
+                    }
+                    throw new Exception("No rows affected");
+                }
+            }
+        }
 
         private bool TrainingProgramExists(int id)
         {

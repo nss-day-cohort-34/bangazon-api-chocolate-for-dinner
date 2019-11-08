@@ -152,7 +152,7 @@ namespace TestBangazonAPI
             using (var client = new APIClientProvider().Client)
             {
                 var response = await client.DeleteAsync(
-                    "/api/paymentTypes/12"
+                    "/api/paymentTypes/1"
                     );
                 string responseBody = await response.Content.ReadAsStringAsync();
                 Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);

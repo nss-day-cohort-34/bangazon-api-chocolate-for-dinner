@@ -100,7 +100,7 @@ namespace TestBangazonAPI
         {
             using (var client = new APIClientProvider().Client)
             {
-                string newProductTypeName = "School";
+                string newProductTypeName = "Active";
 
                 ProductType modifiedProductType = new ProductType
                 {
@@ -112,7 +112,7 @@ namespace TestBangazonAPI
                 /*
                     ACT
                 */
-                var response = await client.PutAsync("/api/productTypes/5",
+                var response = await client.PutAsync("/api/productTypes/3",
                     new StringContent(newProductTypeAsJSON, Encoding.UTF8, "application/json"));
 
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -123,7 +123,7 @@ namespace TestBangazonAPI
                     Get Section
                 */
 
-                var getProductType = await client.GetAsync("/api/productTypes/4");
+                var getProductType = await client.GetAsync("/api/productTypes/3");
                 getProductType.EnsureSuccessStatusCode();
 
                 string getProductTypeBody = await getProductType.Content.ReadAsStringAsync();

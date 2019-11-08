@@ -171,9 +171,11 @@ namespace BangazonAPI.Controllers
                     cmd.CommandText = $@"INSERT INTO Computer (PurchaseDate, DecomissionDate, Make, Manufacturer)
                                                     OUTPUT INSERTED.Id
                                                     VALUES (@PurchaseDate, Null, @Make, @Manufacturer)";
-                    cmd.Parameters.Add(new SqlParameter("@PurchaseDate", computer.PurchaseDate));
+                    DateTime currentDate = DateTime.Now;
+                    cmd.Parameters.Add(new SqlParameter("@PurchaseDate", currentDate));
                     cmd.Parameters.Add(new SqlParameter("@Make", computer.Make));
                     cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));
+                   
 
                     int newId = (int) await cmd.ExecuteScalarAsync();
                     computer.Id = newId;
@@ -198,12 +200,14 @@ namespace BangazonAPI.Controllers
                         cmd.CommandText = @"UPDATE Computer
                                                         SET 
                                                         DecomissionDate = Null,
+                                                        PurchaseDate = @PurchaseDate,
                                                         Make=@Make,
                                                         Manufacturer = @Manufacturer
                                                         WHERE id = @id";
 
            
                         cmd.Parameters.Add(new SqlParameter("@Make", computer.Make));
+                        cmd.Parameters.Add(new SqlParameter("@PurchaseDate", computer.PurchaseDate));
                         cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 

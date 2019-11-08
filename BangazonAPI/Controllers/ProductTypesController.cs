@@ -39,7 +39,7 @@ namespace BangazonAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                        cmd.CommandText = @"SELECT Id, Name FROM ProductType";
+                        cmd.CommandText = @"SELECT Id, Name FROM ProductType WHERE IsDeleted = 0";
 
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
@@ -72,7 +72,7 @@ namespace BangazonAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, Name FROM ProductType WHERE Id = @id";
+                    cmd.CommandText = @"SELECT Id, Name FROM ProductType WHERE Id = @id AND IsDeleted = 0";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
@@ -109,9 +109,9 @@ namespace BangazonAPI.Controllers
                 {
                     // More string interpolation
                     cmd.CommandText = @"
-                        INSERT INTO ProductType (Name)
+                        INSERT INTO ProductType (Name, IsDeleted)
                         OUTPUT INSERTED.Id
-                        VALUES (@Name)
+                        VALUES (@Name, 0)
                     ";
                     cmd.Parameters.Add(new SqlParameter("@Name", productType.Name));
 
@@ -174,7 +174,7 @@ namespace BangazonAPI.Controllers
                     conn.Open();
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "DELETE FROM ProductType Where Id = @id";
+                        cmd.CommandText = "UPDATE ProductType SET IsDeleted = 1 Where Id = @id";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
                         int rowsAffected = await cmd.ExecuteNonQueryAsync();

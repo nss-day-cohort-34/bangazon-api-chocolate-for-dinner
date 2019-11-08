@@ -27,7 +27,6 @@ namespace TestBangazonAPI
                 */
                 var response = await client.GetAsync("/api/trainingPrograms");
 
-
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var trainingPrograms = JsonConvert.DeserializeObject<List<TrainingProgram>>(responseBody);
                 /*
@@ -50,7 +49,7 @@ namespace TestBangazonAPI
                 /*
                     ACT
                 */
-                var response = await client.GetAsync("/api/trainingPrograms/1");
+                var response = await client.GetAsync("/api/trainingPrograms/4");
 
 
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -77,8 +76,7 @@ namespace TestBangazonAPI
                     Name = "Safety Training",
                     StartDate = DateTime.Today,
                     EndDate = DateTime.Now,
-                    MaxAttendees = 25,
-                    IsDeleted = false
+                    MaxAttendees = 25
                 };
 
                 var newTrainingProgramAsJSON = JsonConvert.SerializeObject(newTrainingProgram);
@@ -97,7 +95,6 @@ namespace TestBangazonAPI
                 Assert.Equal(HttpStatusCode.Created, response.StatusCode);
                 Assert.Equal("Safety Training", trainingProgram.Name);
                 Assert.Equal(25, trainingProgram.MaxAttendees);
-                Assert.False(trainingProgram.IsDeleted);
             }
         }
 
@@ -113,8 +110,7 @@ namespace TestBangazonAPI
                     Name = newTrainingProgramName,
                     StartDate = DateTime.Today,
                     EndDate = DateTime.Now,
-                    MaxAttendees = 20,
-                    IsDeleted = false
+                    MaxAttendees = 20
                 };
 
                 var newTrainingProgramAsJSON = JsonConvert.SerializeObject(modifiedTrainingProgram);
@@ -122,7 +118,7 @@ namespace TestBangazonAPI
                 /*
                     ACT
                 */
-                var response = await client.PutAsync("/api/trainingPrograms/1",
+                var response = await client.PutAsync("/api/trainingPrograms/4",
                     new StringContent(newTrainingProgramAsJSON, Encoding.UTF8, "application/json"));
 
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -133,7 +129,7 @@ namespace TestBangazonAPI
                     Get Section
                 */
 
-                var getTrainingProgram = await client.GetAsync("/api/trainingPrograms/1");
+                var getTrainingProgram = await client.GetAsync("/api/trainingPrograms/4");
                 getTrainingProgram.EnsureSuccessStatusCode();
 
                 string getTrainingProgramBody = await getTrainingProgram.Content.ReadAsStringAsync();
@@ -152,43 +148,13 @@ namespace TestBangazonAPI
         {
             using (var client = new APIClientProvider().Client)
             {
-                bool trainingProgramIsDeleted = true;
-                string newTrainingProgramName = "Safety Training 2.0";
-
-                TrainingProgram softDeletedTrainingProgram = new TrainingProgram
-                {
-                    Name = newTrainingProgramName,
-                    StartDate = DateTime.Today,
-                    EndDate = DateTime.Now,
-                    MaxAttendees = 20,
-                    IsDeleted = trainingProgramIsDeleted
-                };
-
-                var newTrainingProgramAsJSON = JsonConvert.SerializeObject(softDeletedTrainingProgram);
 
                 /*
                     ACT
                 */
-                var response = await client.PutAsync("/api/trainingPrograms/2",
-                    new StringContent(newTrainingProgramAsJSON, Encoding.UTF8, "application/json"));
-
-                string responseBody = await response.Content.ReadAsStringAsync();
+                var response = await client.DeleteAsync("/api/trainingPrograms/1");
 
                 Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-
-                /*
-                    Get Section
-                */
-
-                var getTrainingProgram = await client.GetAsync("/api/trainingPrograms/1");
-                getTrainingProgram.EnsureSuccessStatusCode();
-
-                string getTrainingProgramBody = await getTrainingProgram.Content.ReadAsStringAsync();
-
-                TrainingProgram trainingProgram = JsonConvert.DeserializeObject<TrainingProgram>(getTrainingProgramBody);
-
-                Assert.Equal(HttpStatusCode.OK, getTrainingProgram.StatusCode);
-                Assert.Equal(trainingProgramIsDeleted, softDeletedTrainingProgram.IsDeleted);
             }
         }
     }

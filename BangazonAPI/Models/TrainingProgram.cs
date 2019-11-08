@@ -18,7 +18,6 @@ namespace BangazonAPI.Models
         public DateTime EndDate { get; set; }
         [Required]
         public int MaxAttendees { get; set; }
-        public bool IsDeleted { get; set; }
         public List<Employee> Attendees { get; set; } = new List<Employee>();
     }
 }

@@ -47,7 +47,8 @@ namespace BangazonAPI.Controllers
                                                c.LastName AS CustomerLastName
                                           FROM PaymentType pt
 	                                 LEFT JOIN Customer c
-	                                        ON pt.CustomerId = c.Id";
+	                                        ON pt.CustomerId = c.Id
+                                         WHERE IsDeleted = 0";
 
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
@@ -91,7 +92,7 @@ namespace BangazonAPI.Controllers
                                           FROM PaymentType pt
                                                LEFT JOIN Customer c
                                             ON pt.CustomerId = c.Id
-                                         WHERE pt.Id = @Id";
+                                         WHERE pt.Id = @Id AND IsDeleted = 0";
 
                     cmd.Parameters.Add(new SqlParameter("@Id", id));
                     SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -188,35 +189,22 @@ namespace BangazonAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            try
+            using (SqlConnection conn = Connection)
             {
-                using (SqlConnection conn = Connection)
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
+                    cmd.CommandText = @"UPDATE PaymentType 
+                                           SET IsDeleted = 1
+                                         WHERE Id = @id";
+                    cmd.Parameters.Add(new SqlParameter("@Id", id));
+
+                    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                    if (rowsAffected > 0)
                     {
-                        cmd.CommandText = @"DELETE FROM PaymentType WHERE Id = @id";
-                        cmd.Parameters.Add(new SqlParameter("@id", id));
-
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        if (rowsAffected > 0)
-                        {
-                            return new StatusCodeResult(StatusCodes.Status204NoContent);
-                        }
-                        throw new Exception("No rows affected");
+                        return new StatusCodeResult(StatusCodes.Status204NoContent);
                     }
-                }
-            }
-
-            catch (Exception)
-            {
-                if (!PaymentTypeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
+                    throw new Exception("No rows affected");
                 }
             }
         }

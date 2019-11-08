@@ -89,26 +89,29 @@ namespace BangazonAPI.Controllers
                    
                         if (_include == "products")
                         {
-                            Product product = new Product
+                            if (!reader.IsDBNull(reader.GetOrdinal("ProductId")))
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("ProductId")),
-                                ProductTypeId = reader.GetInt32(reader.GetOrdinal("ProductTypeId")),
-                                CustomerId = reader.GetInt32(reader.GetOrdinal("PaymentCustomerId")),
-                                Price = reader.GetDecimal(reader.GetOrdinal("Price")),
-                                Title = reader.GetString(reader.GetOrdinal("Title")),
-                                Description = reader.GetString(reader.GetOrdinal("Description")),
-                                Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
-                            };
-                            order.Products = new List<Product>();
-                            if (orders.Any(o => o.Id == order.Id))
-                            {
-                                Order existingOrder = orders.Find(o => o.Id == order.Id);
-                                existingOrder.Products.Add(product);
-                            }
-                            else
-                            {
-                                order.Products.Add(product);
-                                orders.Add(order);
+                                Product product = new Product
+                                {
+                                    Id = reader.GetInt32(reader.GetOrdinal("ProductId")),
+                                    ProductTypeId = reader.GetInt32(reader.GetOrdinal("ProductTypeId")),
+                                    CustomerId = reader.GetInt32(reader.GetOrdinal("PaymentCustomerId")),
+                                    Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                                    Title = reader.GetString(reader.GetOrdinal("Title")),
+                                    Description = reader.GetString(reader.GetOrdinal("Description")),
+                                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity"))
+                                };
+                                order.Products = new List<Product>();
+                                if (orders.Any(o => o.Id == order.Id))
+                                {
+                                    Order existingOrder = orders.Find(o => o.Id == order.Id);
+                                    existingOrder.Products.Add(product);
+                                }
+                                else
+                                {
+                                    order.Products.Add(product);
+                                    orders.Add(order);
+                                }
                             }
                         }
                         else if (_include == "customers")
@@ -328,7 +331,7 @@ namespace BangazonAPI.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"DELETE FROM OrderProduct WHERE OrderId = @id
-                                            DELETE FROM [Order] WHERE Id = @id;
+                                            DELETE FROM [Order] WHERE Id = @id AND PaymentTypeId IS NULL
                                             ";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
@@ -337,7 +340,7 @@ namespace BangazonAPI.Controllers
                         {
                             return new StatusCodeResult(StatusCodes.Status204NoContent);
                         }
-                        throw new Exception("No rows affected");
+                        throw new Exception("You cannot delete this order because it has already been completed");
                     }
                 }
             }

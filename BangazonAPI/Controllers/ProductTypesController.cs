@@ -177,7 +177,7 @@ namespace BangazonAPI.Controllers
                         cmd.CommandText = "DELETE FROM ProductType Where Id = @id";
                         cmd.Parameters.Add(new SqlParameter("@id", id));
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
                         if (rowsAffected > 0)
                         {
                             return new StatusCodeResult(StatusCodes.Status204NoContent);

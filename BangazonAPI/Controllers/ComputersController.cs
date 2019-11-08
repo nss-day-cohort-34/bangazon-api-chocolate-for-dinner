@@ -110,7 +110,6 @@ namespace BangazonAPI.Controllers
 
 
 
-        //GET: Code for getting a single computer (active or not)
         [HttpGet("{id}", Name = "Computer")]
         public async Task<IActionResult> GetSingleComputer([FromRoute] int id)
         {
@@ -159,7 +158,7 @@ namespace BangazonAPI.Controllers
             }
         }
 
-        //  POST: Code for creating a computer
+        //  POST: create a computer
         [HttpPost]
         public async Task<IActionResult> Computer([FromBody] Computer computer)
         {
@@ -171,7 +170,7 @@ namespace BangazonAPI.Controllers
 
                     cmd.CommandText = $@"INSERT INTO Computer (PurchaseDate, DecomissionDate, Make, Manufacturer)
                                                     OUTPUT INSERTED.Id
-                                                    VALUES (@PurchaseDate, Null, @Make,          @Manufacturer)";
+                                                    VALUES (@PurchaseDate, Null, @Make, @Manufacturer)";
                     cmd.Parameters.Add(new SqlParameter("@PurchaseDate", computer.PurchaseDate));
                     cmd.Parameters.Add(new SqlParameter("@Make", computer.Make));
                     cmd.Parameters.Add(new SqlParameter("@Manufacturer", computer.Manufacturer));

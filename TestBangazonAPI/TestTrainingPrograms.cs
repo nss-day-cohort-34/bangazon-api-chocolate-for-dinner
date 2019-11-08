@@ -49,7 +49,7 @@ namespace TestBangazonAPI
                 /*
                     ACT
                 */
-                var response = await client.GetAsync("/api/trainingPrograms/1");
+                var response = await client.GetAsync("/api/trainingPrograms/4");
 
 
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -118,7 +118,7 @@ namespace TestBangazonAPI
                 /*
                     ACT
                 */
-                var response = await client.PutAsync("/api/trainingPrograms/1",
+                var response = await client.PutAsync("/api/trainingPrograms/4",
                     new StringContent(newTrainingProgramAsJSON, Encoding.UTF8, "application/json"));
 
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -129,7 +129,7 @@ namespace TestBangazonAPI
                     Get Section
                 */
 
-                var getTrainingProgram = await client.GetAsync("/api/trainingPrograms/1");
+                var getTrainingProgram = await client.GetAsync("/api/trainingPrograms/4");
                 getTrainingProgram.EnsureSuccessStatusCode();
 
                 string getTrainingProgramBody = await getTrainingProgram.Content.ReadAsStringAsync();

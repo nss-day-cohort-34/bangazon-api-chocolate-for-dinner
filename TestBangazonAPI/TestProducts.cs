@@ -159,44 +159,13 @@ namespace TestBangazonAPI
         {
             using (var client = new APIClientProvider().Client)
             {
-                bool productIsDeleted = true;
-
-                Product softDeletedProduct = new Product
-                {
-                    ProductTypeId = 1,
-                    CustomerId = 1,
-                    Price = 13.99M,
-                    Title = "New Product",
-                    Description = "This product will make your life better",
-                    Quantity = 5,
-                    IsDeleted = productIsDeleted
-                };
-
-                var newProductAsJSON = JsonConvert.SerializeObject(softDeletedProduct);
 
                 /*
                     ACT
                 */
-                var response = await client.PutAsync("/api/products/1",
-                    new StringContent(newProductAsJSON, Encoding.UTF8, "application/json"));
-
-                string responseBody = await response.Content.ReadAsStringAsync();
+                var response = await client.DeleteAsync("/api/products/1");
 
                 Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-
-                /*
-                    Get Section
-                */
-
-                var getProduct = await client.GetAsync("/api/products/1");
-                getProduct.EnsureSuccessStatusCode();
-
-                string getProductBody = await getProduct.Content.ReadAsStringAsync();
-
-                Product product = JsonConvert.DeserializeObject<Product>(getProductBody);
-
-                Assert.Equal(HttpStatusCode.OK, getProduct.StatusCode);
-                Assert.Equal(productIsDeleted, softDeletedProduct.IsDeleted);
             }
         }
 
